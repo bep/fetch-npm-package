@@ -22,7 +22,6 @@ func main() {
 }
 
 func fetchPackage(packageName, version, outputDir string) error {
-	version = lib.NormalizeSemver(version)
 	if _, err := os.Stat(outputDir); os.IsNotExist(err) {
 		return fmt.Errorf("output directory %q does not exist", outputDir)
 	}

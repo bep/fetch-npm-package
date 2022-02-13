@@ -14,7 +14,6 @@ import (
 	"os"
 	"path/filepath"
 	"sort"
-	"strings"
 	"time"
 
 	"golang.org/x/mod/semver"
@@ -107,7 +106,7 @@ func (tags *DistTags) UnmarshalJSON(b []byte) error {
 	if err != nil {
 		return err
 	}
-	tags.Latest = NormalizeSemver(m["latest"])
+	tags.Latest = m["latest"]
 	return nil
 }
 
@@ -142,7 +141,6 @@ func (vs *Versions) UnmarshalJSON(b []byte) error {
 		return err
 	}
 	for _, version := range m {
-		version.Version = NormalizeSemver(version.Version)
 		*vs = append(*vs, version)
 	}
 
@@ -186,41 +184,6 @@ func DownloadTarballAndUnpack(dist Dist, outputDir string) (err error) {
 
 	return untar(outputDir, f)
 }
-
-func NormalizeSemver(s string) string {
-	if !strings.HasPrefix(s, "v") {
-		s = "v" + s
-	}
-	return s
-}
-
-/*func repackTarballAsZip(tarFilename string, version Version) (nameReadSeekCloser, error) {
-	tarDir := filepath.Join(filepath.Dir(tarFilename), fmt.Sprintf("%s-%s-%s", version.Name, version.Version, version.Dist.ShaSum))
-	if err := os.MkdirAll(tarDir, 0o755); err != nil {
-		return nil, err
-	}
-	tf, err := os.Open(tarFilename)
-	if err != nil {
-		return nil, err
-	}
-	defer tf.Close()
-
-	if err := untar(tarDir, tf); err != nil {
-		return nil, fmt.Errorf("failed to untar: %s", err)
-	}
-	zipFilename := tarFilename + ".zip"
-	f, err := os.Create(zipFilename)
-	if err != nil {
-		return nil, err
-	}
-
-	major := semver.Major(version.Version)
-	if major == "v1" {
-		major = ""
-	}
-
-	return f, zip.CreateFromDir(f, module.Version{Path: path.Join(ModPathBase, version.Name, major), Version: version.Version}, tarDir)
-}*/
 
 func untar(dst string, r io.Reader) error {
 	gzr, err := gzip.NewReader(r)
