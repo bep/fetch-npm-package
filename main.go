@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"fmt"
 	"io/ioutil"
 	"log"
 	"os"
@@ -15,22 +16,26 @@ func main() {
 		log.Fatal("usage: fetch-npm-package <package> <version> <output-dir>")
 	}
 
-	packageName := os.Args[1]
-	version := lib.NormalizeSemver(os.Args[2])
-	outputDir := os.Args[3]
+	if err := fetchPackage(os.Args[1], os.Args[2], os.Args[3]); err != nil {
+		log.Fatal(err)
+	}
+}
+
+func fetchPackage(packageName, version, outputDir string) error {
+	version = lib.NormalizeSemver(version)
 	if _, err := os.Stat(outputDir); os.IsNotExist(err) {
-		log.Fatal("output directory does not exist")
+		return fmt.Errorf("output directory %q does not exist", outputDir)
 	}
 	packageDir := filepath.Join(outputDir, "package")
 	if _, err := os.Stat(packageDir); err == nil {
-		log.Fatalf("package dir %q already exists", packageDir)
+		return fmt.Errorf("package dir %q already exists", packageDir)
 	}
 
 	log.Printf("Fetching package %s@%s", packageName, version)
 
 	v, err := lib.FetchPackageVersion(packageName, version)
 	if err != nil {
-		log.Fatal(err)
+		return err
 	}
 
 	if err := lib.DownloadTarballAndUnpack(v.Dist, outputDir); err != nil {
@@ -39,10 +44,8 @@ func main() {
 
 	meta, err := json.MarshalIndent(v, "", "  ")
 	if err != nil {
-		log.Fatal(err)
+		return err
 	}
-	err = ioutil.WriteFile(filepath.Join(outputDir, "npmpackage.json"), meta, 0644)
-	if err != nil {
-		log.Fatal(err)
-	}
+
+	return ioutil.WriteFile(filepath.Join(outputDir, "npmpackage.json"), meta, 0644)
 }
