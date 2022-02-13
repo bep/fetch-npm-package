@@ -38,7 +38,7 @@ func fetchPackage(packageName, version, outputDir string) error {
 	}
 
 	if err := lib.DownloadTarballAndUnpack(v.Dist, outputDir); err != nil {
-		log.Fatal(err)
+		return err
 	}
 
 	meta, err := json.MarshalIndent(v, "", "  ")
