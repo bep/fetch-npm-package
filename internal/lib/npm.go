@@ -14,6 +14,7 @@ import (
 	"os"
 	"path/filepath"
 	"sort"
+	"strings"
 	"time"
 
 	"golang.org/x/mod/semver"
@@ -47,6 +48,7 @@ func FetchPackage(s string) (NpmPackage, error) {
 }
 
 func FetchPackageVersion(pack, version string) (Version, error) {
+	version = normalizeSemver(version)
 	npmpkg, err := FetchPackage(pack)
 	if err != nil {
 		return Version{}, err
@@ -106,7 +108,7 @@ func (tags *DistTags) UnmarshalJSON(b []byte) error {
 	if err != nil {
 		return err
 	}
-	tags.Latest = m["latest"]
+	tags.Latest = normalizeSemver(m["latest"])
 	return nil
 }
 
@@ -141,6 +143,7 @@ func (vs *Versions) UnmarshalJSON(b []byte) error {
 		return err
 	}
 	for _, version := range m {
+		version.Version = normalizeSemver(version.Version)
 		*vs = append(*vs, version)
 	}
 
@@ -230,4 +233,12 @@ func untar(dst string, r io.Reader) error {
 			f.Close()
 		}
 	}
+}
+
+func normalizeSemver(s string) string {
+	// Make the version Go semver compatible.
+	if !strings.HasPrefix(s, "v") {
+		s = "v" + s
+	}
+	return s
 }
