@@ -1,8 +1,11 @@
-module github.com/bep/go-main-template
+module github.com/bep/fetch-npm-package
 
 go 1.17
 
-require github.com/frankban/quicktest v1.14.2
+require (
+	github.com/frankban/quicktest v1.14.2
+	golang.org/x/mod v0.5.1
+)
 
 require (
 	github.com/google/go-cmp v0.5.7 // indirect
