@@ -3,7 +3,6 @@ package main
 import (
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
 	"log"
 	"os"
 	"path/filepath"
@@ -46,5 +45,5 @@ func fetchPackage(packageName, version, outputDir string) error {
 		return err
 	}
 
-	return ioutil.WriteFile(filepath.Join(outputDir, "npmpackage.json"), meta, 0644)
+	return os.WriteFile(filepath.Join(outputDir, "npmpackage.json"), meta, 0o644)
 }
