@@ -2,7 +2,6 @@ package main
 
 import (
 	"bytes"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 	"testing"
@@ -16,7 +15,7 @@ func TestFetchPackage(t *testing.T) {
 
 	c.Assert(fetchPackage("is-sorted", "1.0.5", outputDir), qt.IsNil)
 
-	b, err := ioutil.ReadFile(filepath.Join(outputDir, "npmpackage.json"))
+	b, err := os.ReadFile(filepath.Join(outputDir, "npmpackage.json"))
 
 	c.Assert(err, qt.IsNil)
 	c.Assert(bytes.Contains(b, []byte("is-sorted")), qt.IsTrue)
